@@ -4,9 +4,13 @@ import torchvision as tv
 
 
 
+IMG_HEIGHT=512
+IMG_WIDTH=512
+IMG_DEPTH=128
+
 def get_transforms(landmarks):
     ras_transform=tio.ToCanonical()
-    crop_transform=tio.CropOrPad((512,512,128))
+    crop_transform=tio.CropOrPad((IMG_HEIGHT,IMG_WIDTH,IMG_DEPTH))
     hist_transform = tio.HistogramStandardization(landmarks)
     znorm_transform = tio.ZNormalization(masking_method=tio.ZNormalization.mean)
 
@@ -29,39 +33,19 @@ def get_dataset(dataset_dir):
     dataset = tio.SubjectsDataset(subjects,transform=transforms)
     return dataset
 
+def slice3D(x):
+    # (Batch,Channel.Height,Width,Depth) -> (Batch*Depth,Channel,Height,Width)
+    x=t.movedim(x,-1,0)
+    x=t.flatten(x,start_dim=0,end_dim=1)
+    return x
 
-# class LiverDataset(t.utils.data.Dataset):
-#     def __init__(self,path,undersample=True,factor=2):
-#         super(LiverDataset,self).__init__()
-#         self.sdataset=get_dataset(path)
-#         self.factor=factor if undersample else 1
-#
-#     def __len__(self):
-#         return len(self.sdataset)
-#
-#     def slice(self,x):
-#         print(x.shape)
-#         x=t.movedim(x,-1,0)
-#         print(x.shape)
-#         x=t.flatten(x,start_dim=0,end_dim=1)
-#         print(x.shape)
-#         return x
-#
-#     def __getitem__(self,i):
-#         sbatch=self.sdataset.__getitem__(i)
-#         imgs=self.slice(sbatch['mri']['data'])
-#         segs=self.slice(sbatch['liver']['data'])
-#
-#         imgs=imgs[:,::self.factor,::self.factor]
-#         segs=segs[:,::self.factor,::self.factor]
-#
-#         return imgs,segs
-#
-# def slice()
-
-# def preprocess(subjects):
-#     imgs=self.slice(subjects['mri']['data'])
-#     segs=self.slice(subjects['liver']['data'])
+def preprocess(subjects):
+    imgs=slice3D(subjects['mri']['data'])
+    segs=slice3D(subjects['liver']['data'])
+    resize=tv.transforms.Resize((IMG_HEIGHT//2,IMG_WIDTH//2))
+    imgs=resize(imgs)
+    segs=resize(segs)
+    return imgs,segs
 
 
 
