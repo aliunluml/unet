@@ -10,4 +10,4 @@ class DiceLoss(t.nn.Module):
         intersection=2*(logits*labels).sum()
         union=logits.sum()+labels.sum()
         out= (intersection+self.smooth)/(union+self.smooth)
-        return out
+        return -out
