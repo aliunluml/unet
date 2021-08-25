@@ -33,6 +33,9 @@ def get_dataset(dataset_dir):
     dataset = tio.SubjectsDataset(subjects,transform=transforms)
     return dataset
 
+def train(net):
+    
+
 
 raw_dir='raw'
 train_dataset=get_dataset(raw_dir/'train')
@@ -41,6 +44,6 @@ test_dataset=get_dataset(raw_dir/'test')
 train_loader=t.utils.data.DataLoader(train_dataset,batch_size=BATCH_SIZE,pin_memory=False,num_workers=NUM_WORKERS)
 test_loader=t.utils.data.DataLoader(test_dataset,batch_size=BATCH_SIZE,pin_memory=False,num_workers=NUM_WORKERS)
 
-model=
+model=UNet()
 
 for epoch in range(0,EPOCHS):
