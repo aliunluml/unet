@@ -5,7 +5,6 @@ import torch as t
 import torchvision as tv
 import torchio as tio
 import matplotlib.pyplot as plt
-import pytorch_lightning as pl
 
 from models import UNet
 from lib import DiceLoss,get_dataset,preprocess
