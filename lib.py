@@ -39,9 +39,9 @@ def slice3D(x):
     x=t.flatten(x,start_dim=0,end_dim=1)
     return x
 
-def preprocess(subjects):
-    imgs=slice3D(subjects['mri']['data'])
-    segs=slice3D(subjects['liver']['data'])
+def preprocess(subject_batch):
+    imgs=slice3D(subject_batch['mri']['data'])
+    segs=slice3D(subject_batch['liver']['data'])
     resize=tv.transforms.Resize((IMG_HEIGHT//2,IMG_WIDTH//2))
     imgs=resize(imgs)
     segs=resize(segs)
