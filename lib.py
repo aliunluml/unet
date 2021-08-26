@@ -42,9 +42,9 @@ def slice3D(x):
 def preprocess(subject_batch):
     imgs=slice3D(subject_batch['mri']['data'])
     segs=slice3D(subject_batch['liver']['data'])
-    resize=tv.transforms.Resize((IMG_HEIGHT//2,IMG_WIDTH//2))
-    imgs=resize(imgs)
-    segs=resize(segs)
+    resize=tv.transforms.Resize((IMG_HEIGHT//8,IMG_WIDTH//8))
+    imgs=resize(imgs).float()
+    segs=resize(segs).float()
     return imgs,segs
 
 

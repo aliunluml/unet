@@ -36,18 +36,19 @@ def get_model(args):
         for subject_batch in train_loader:
             img_batch,seg_batch=preprocess(subject_batch)
             img_batch=img_batch.to(DEVICE)
-            img_batch=seg_batch.to(DEVICE)
+            seg_batch=seg_batch.to(DEVICE)
 
             logits=model(img_batch)
 
-            loss=diceloss(logits,labels)
+            loss=diceloss(logits,seg_batch)
             losses.append(loss.item())
             loss.backward()
 
             opt.step()
             opt.zero_grad()
-
-        return losses.mean()
+        
+        mean_loss=sum(losses)/len(losses)
+        return mean_loss
 
     def test(model):
         model.eval()
@@ -59,10 +60,11 @@ def get_model(args):
                 seg_batch=seg_batch.to(DEVICE)
 
                 logits=model(img_batch)
-                loss=diceloss(logits,labels)
+                loss=diceloss(logits,seg_batch)
                 losses.append(loss.item())
 
-        return losses.mean()
+        mean_loss=sum(losses)/len(losses)
+        return mean_loss
 
     dict={'epoch':[],'train_losses':[],'test_losses':[]}
     for epoch in range(0,args.epochs):
@@ -71,6 +73,8 @@ def get_model(args):
         dict['train_losses'].append(train_loss)
         dict['test_losses'].append(test_loss)
         dict['epoch'].append(epoch)
+        print('Epoch: '+str(epoch)+' Train loss: '+str(train_loss)+' Test loss: '+str(test_loss))
+        print('-'*10)
 
     df=pd.DataFrame(dict)
     df.to_csv('out.csv')
@@ -113,7 +117,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--filename',   type=str,   nargs=1)
     parser.add_argument('--epochs',     type=int,   nargs=1, default=20)
-    parser.add_argument('--lr',         type=float, nargs=1, default=1e-3)
-    parser.add_argument('--batch_size', type=int,   nargs=1, default=2)
+    parser.add_argument('--lr',         type=float, nargs=1, default=1e-4)
+    parser.add_argument('--batch_size', type=int,   nargs=1, default=3)
     args=parser.parse_args()
     main(args)
