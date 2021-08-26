@@ -35,8 +35,8 @@ def get_model(args):
         losses=[]
         for subject_batch in train_loader:
             img_batch,seg_batch=preprocess(subject_batch)
-            img_batch.to(DEVICE)
-            seg_batch.to(DEVICE)
+            img_batch=img_batch.to(DEVICE)
+            img_batch=seg_batch.to(DEVICE)
 
             logits=model(img_batch)
 
@@ -55,8 +55,8 @@ def get_model(args):
         with t.no_grad():
             for subject_batch in test_loader:
                 img_batch,seg_batch=preprocess(subject_batch)
-                img_batch.to(DEVICE)
-                seg_batch.to(DEVICE)
+                img_batch=img_batch.to(DEVICE)
+                seg_batch=seg_batch.to(DEVICE)
 
                 logits=model(img_batch)
                 loss=diceloss(logits,labels)
@@ -85,9 +85,9 @@ def run(model):
     batch=next(iter(test_loader))
     mri,liver=preprocess(batch)
     with t.no_grad():
-        mri.to(DEVICE)
+        mri=mri.to(DEVICE)
         probs=model(mri).cpu()
-        mri.cpu()
+        mri=mri.cpu()
     affine = batch['mri'][tio.AFFINE][0].numpy()
     subject = tio.Subject(mri=tio.ScalarImage(tensor=t.movedim(mri,0,-1), affine=affine),liver=tio.LabelMap(tensor=t.movedim(liver,0,-1), affine=affine),predicted=tio.ScalarImage(tensor=t.movedim(probs,0,-1), affine=affine))
     # subject.plot(figsize=(9, 8), cmap_dict={'predicted': 'RdBu_r'})
@@ -98,9 +98,8 @@ def run(model):
 
 def main(args):
     if args.filename is not None:
-        model=UNet()
+        model=UNet().to(DEVICE)
         model.load_state_dict(t.load(args.filename))
-        model.to(DEVICE)
         model.eval()
     else:
         model=get_model(args)
